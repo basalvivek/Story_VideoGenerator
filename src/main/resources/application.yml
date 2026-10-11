@@ -1,0 +1,44 @@
+server:
+  port: 1011
+  compression:
+    enabled: true
+    mime-types: text/html,text/css,application/javascript,application/json
+spring:
+  application:
+    name: story-to-video
+  datasource:
+    url: jdbc:postgresql://${MOVIE_DB_HOST:localhost}:${MOVIE_DB_PORT:5434}/${MOVIE_DB_NAME:moviedb}
+    username: ${MOVIE_DB_USER:movie}
+    password: ${MOVIE_DB_PASSWORD:movie_pw}
+    hikari:
+      maximum-pool-size: 10
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 52MB
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+app:
+  ffmpeg: ${FFMPEG_PATH:ffmpeg}
+  ffprobe: ${FFPROBE_PATH:ffprobe}
+  work-dir: ${java.io.tmpdir}/story-to-video
+  max-upload-bytes: 52428800
+  generation:
+    threads: 2
+  # Realistic AI scene images. Set the GEMINI_API_KEY environment variable to enable; without it the offline cartoon renderer is used.
+  gemini:
+    api-key: ${GEMINI_API_KEY:}
+    text-model: ${GEMINI_TEXT_MODEL:gemini-2.5-flash}
+    image-model: ${GEMINI_IMAGE_MODEL:gemini-2.5-flash-image}
+logging:
+  level:
+    com.moviemaker: INFO

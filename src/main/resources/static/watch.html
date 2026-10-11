@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Watch video</title>
+  <link rel="icon" href="/img/logo.png">
+  <style>
+    body { margin: 0; background: #0b0d22; color: #fff; font-family: Inter, "Segoe UI", system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+    header { width: 100%; padding: 16px 28px; background: linear-gradient(100deg, #1c2a6c, #7a3ec4); display: flex; align-items: center; gap: 14px; box-sizing: border-box; }
+    header img { height: 40px; } header b { font-size: 18px; } header span { color: #ffc83d; }
+    main { width: min(1100px, 100%); padding: 24px 16px; box-sizing: border-box; }
+    video { width: 100%; max-height: 72vh; background: #000; border-radius: 10px; }
+    h1 { font-size: 24px; margin: 18px 0 6px; } p { opacity: .7; margin: 0; }
+    a { color: #7db4ff; }
+  </style>
+</head>
+<body>
+<header><img src="/img/logo.png" alt=""><b>AI Story to <span>Video Generator</span></b></header>
+<main>
+  <video id="v" controls playsinline preload="metadata" hidden></video>
+  <h1 id="t">Loading…</h1>
+  <p id="s"></p>
+  <p><a href="/">Create your own video</a></p>
+</main>
+<script>
+  (async () => {
+    const token = location.pathname.split('/').pop();
+    try {
+      const r = await fetch('/api/public/' + encodeURIComponent(token));
+      if (!r.ok) throw new Error('This video is not available.');
+      const p = await r.json();
+      document.title = p.title;
+      document.getElementById('t').textContent = p.title;
+      if (p.status !== 'COMPLETED') { document.getElementById('s').textContent = 'This video is still being generated. Please check back soon.'; return; }
+      const v = document.getElementById('v');
+      v.src = '/api/public/' + encodeURIComponent(token) + '/video'; v.hidden = false;
+      const m = Math.floor(p.durationSeconds / 60), s = Math.floor(p.durationSeconds % 60);
+      document.getElementById('s').textContent = `${m}:${String(s).padStart(2, '0')} · ${p.scenes.length} scenes`;
+    } catch (e) { document.getElementById('t').textContent = e.message; }
+  })();
+</script>
+</body>
+</html>

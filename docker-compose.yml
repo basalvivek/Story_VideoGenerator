@@ -1,0 +1,20 @@
+services:
+  moviedb:
+    image: postgres:16-alpine
+    container_name: moviedb
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${MOVIE_DB_NAME:-moviedb}
+      POSTGRES_USER: ${MOVIE_DB_USER:-movie}
+      POSTGRES_PASSWORD: ${MOVIE_DB_PASSWORD:-movie_pw}
+    ports:
+      - "5434:5432"
+    volumes:
+      - moviedb_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${MOVIE_DB_USER:-movie} -d ${MOVIE_DB_NAME:-moviedb}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+volumes:
+  moviedb_data:
